@@ -1,0 +1,1176 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sua Jornada na Mentoria 6D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* Paleta e tipografia do padrão de painéis da Gestão Insider.
+     O verde é a cor do progresso: barra, seleção, check e conclusão. */
+  :root{
+    --ink:#1E2342;
+    --ink-soft:#454B72;
+    --paper:#EEECE4;
+    --paper-card:#FDFCFA;
+    --line:#DEDACE;
+    --line-soft:#E8E4DA;
+    --stamp-red:#A23B2E;
+    --stamp-red-soft:#F5E3DF;
+    --stamp-amber:#B8862B;
+    --green:#FE5533;
+    --green-bright:#FF6B45;
+    --green-soft:#FFE9E3;
+    --gray:#8B8578;
+    --radius:14px;
+    --t:cubic-bezier(.22,.75,.3,1);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    /* Papel com textura: um ruído fino em SVG, leve o bastante para não competir
+       com o texto, e um clarão no topo que faz o cartão descolar do fundo. */
+    background-color:#E8E4D9;
+    background-image:
+      radial-gradient(1100px 620px at 50% -8%, rgba(255,255,255,.75), rgba(255,255,255,0) 68%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cg fill='none' stroke='%231E2342' stroke-opacity='0.07'%3E%3Ccircle cx='22' cy='22' r='4.5'/%3E%3Crect x='84' y='16' width='11' height='11' rx='2'/%3E%3Ccircle cx='108' cy='86' r='3.5'/%3E%3Crect x='16' y='92' width='9' height='9' rx='2' transform='rotate(18 20 96)'/%3E%3C/g%3E%3Cg fill='%231E2342' fill-opacity='0.045'%3E%3Ccircle cx='66' cy='58' r='3'/%3E%3Ccircle cx='128' cy='34' r='2.5'/%3E%3Crect x='52' y='112' width='7' height='7' rx='1.5'/%3E%3C/g%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)' opacity='0.14'/%3E%3C/svg%3E");
+    color:var(--ink);
+    font-size:16px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ---------- Barra de progresso, sempre visível no topo ---------- */
+  /* ---------- Palco centralizado ---------- */
+  /* Formas grandes ao fundo: dão profundidade sem disputar com o texto. */
+  .deco{position:fixed;z-index:0;pointer-events:none;border:2px solid rgba(30,35,66,.07)}
+  .deco.c{border-radius:50%}
+  .d1{width:230px;height:230px;top:-70px;left:-70px}
+  .d2{width:150px;height:150px;right:-46px;top:22%;transform:rotate(22deg);border-radius:26px}
+  .d3{width:300px;height:300px;right:-110px;bottom:-110px}
+  .d4{width:86px;height:86px;left:5%;bottom:14%;transform:rotate(-14deg);border-radius:16px;
+      border-color:rgba(254,85,51,.13)}
+  .d5{width:16px;height:16px;left:16%;top:16%;background:rgba(254,85,51,.11);border:none;border-radius:50%}
+  .d6{width:12px;height:12px;right:20%;bottom:22%;background:rgba(184,134,43,.15);border:none;border-radius:3px}
+  @media(max-width:900px){.d2,.d4,.d6{display:none}}
+
+  /* Trilha de capítulos abaixo do cartão: mostra onde a pessoa está e o que
+     já ficou para trás, sem competir com a pergunta. */
+  .trilha{display:flex;justify-content:center;align-items:flex-start;
+    width:100%;margin:30px auto 0;padding:0 4px}
+  .trilha .cap{flex:1 1 0;max-width:170px;display:flex;flex-direction:column;align-items:center;
+    text-align:center;position:relative;padding:2px 0 0;background:none;border:none;
+    font:inherit;color:inherit;cursor:pointer}
+  .trilha .cap:disabled{cursor:default}
+  .trilha .cap:not(:disabled):hover .bolha{transform:scale(1.3);border-color:var(--green)}
+  .trilha .cap:not(:disabled):hover .nome{color:var(--ink)}
+  .trilha.travada .cap{cursor:default}
+  .trilha .cap::before{content:'';position:absolute;top:9px;left:50%;width:100%;height:2px;
+    background:rgba(30,35,66,.13);transition:background .35s var(--t)}
+  .trilha .cap:last-child::before{display:none}
+  .trilha .bolha{width:15px;height:15px;border-radius:50%;background:#F6F4EC;
+    border:1.5px solid rgba(30,35,66,.22);position:relative;z-index:1;transition:all .3s var(--t)}
+  .trilha .nome{margin-top:10px;font-size:11.5px;line-height:1.3;color:var(--gray);
+    max-width:130px;transition:all .3s var(--t)}
+
+  .trilha .cap.feito::before{background:var(--green)}
+  .trilha .cap.feito .bolha{background:var(--green);border-color:var(--green)}
+  .trilha .cap.feito .bolha::after{content:'';position:absolute;inset:0;margin:auto;width:7px;height:7px;
+    background:#fff;clip-path:polygon(14% 47%,0 61%,40% 100%,100% 22%,86% 8%,38% 71%);
+    animation:sobe .3s var(--t) both}
+  .trilha .cap.feito .nome{color:var(--ink-soft)}
+
+  .trilha .cap.atual .bolha{background:var(--green-bright);border-color:var(--green-bright);
+    transform:scale(1.25);animation:pulsoCap 2.4s ease-in-out infinite}
+  @keyframes pulsoCap{
+    0%,100%{box-shadow:0 0 0 5px rgba(254,85,51,.18)}
+    50%{box-shadow:0 0 0 9px rgba(254,85,51,.07)}
+  }
+  .trilha .cap.atual .nome{color:var(--green);font-weight:700}
+
+  @media(max-width:680px){
+    .trilha{margin-top:24px}
+    .trilha .nome{display:none}
+    .trilha .cap{max-width:none}
+  }
+
+  .palco{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;
+    align-items:center;padding:44px 20px 40px;gap:0}
+  @media(max-width:640px){.palco{justify-content:flex-start;padding:26px 14px 32px}}
+  .coluna{width:100%;max-width:1060px}
+
+  /* ---------- Cabeçalho ---------- */
+  .topo{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px}
+  .brand-logo{height:64px;width:auto;display:block}
+  @media(max-width:640px){.brand-logo{height:50px}}
+  .medidor{width:100%;max-width:440px;display:flex;flex-direction:column;gap:8px;align-items:center}
+  .progresso{width:100%;height:10px;border-radius:100px;background:rgba(30,35,66,.10);
+    overflow:hidden;box-shadow:inset 0 1px 2px rgba(30,35,66,.10)}
+  .progresso i{display:block;height:100%;width:0;border-radius:100px;position:relative;
+    background:linear-gradient(90deg,var(--green) 0%,var(--green-bright) 70%,#5FA786 100%);
+    transition:width .45s var(--t)}
+  .progresso i::after{content:'';position:absolute;inset:0;border-radius:100px;
+    background:linear-gradient(90deg,transparent 40%,rgba(255,255,255,.55) 65%,transparent 92%);
+    animation:brilho 2.6s linear infinite}
+  @keyframes brilho{from{transform:translateX(-60%)}to{transform:translateX(60%)}}
+  .etapa{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:600;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--gray)}
+  .etapa .pct{font-family:'IBM Plex Mono',monospace;color:var(--green);letter-spacing:0}
+  .etapa .ponto{width:3px;height:3px;border-radius:50%;background:var(--line)}
+
+  /* ---------- Cartão ---------- */
+  .card{background:#FFFDFA;border:1px solid #E2DED2;border-radius:20px;
+    padding:40px 42px;box-shadow:0 1px 1px rgba(30,35,66,.04),0 18px 44px -22px rgba(30,35,66,.34)}
+  @media(max-width:640px){.card{padding:26px 20px;border-radius:16px}}
+
+  .entra{animation:entra .34s var(--t) both}
+  /* Cada bloco do cartão entra logo depois do anterior: título, apoio, opções, ações. */
+  .entra > *{animation:sobe .44s var(--t) both}
+  .entra > *:nth-child(1){animation-delay:.03s}
+  .entra > *:nth-child(2){animation-delay:.09s}
+  .entra > *:nth-child(3){animation-delay:.15s}
+  .entra > *:nth-child(4){animation-delay:.21s}
+  .entra > *:nth-child(5){animation-delay:.26s}
+  .entra > *:nth-child(6){animation-delay:.30s}
+  .entra h1,.entra h2{animation:titulo .55s var(--t) both}
+  @keyframes titulo{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .entra .lead p{animation:sobe .5s var(--t) both}
+  .entra .lead p:nth-child(2){animation-delay:.06s}
+  .entra .lead p:nth-child(3){animation-delay:.11s}
+  .entra .lead p:nth-child(4){animation-delay:.16s}
+  .entra .lead p:nth-child(5){animation-delay:.20s}
+  /* opções e botões de escala entram em cascata, com o atraso definido no script */
+  .entra .opt,.entra .escala button{animation:sobe .4s var(--t) both}
+  .entra-volta{animation:entraVolta .34s var(--t) both}
+  @keyframes entra{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+  @keyframes entraVolta{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+  .sai{opacity:0;transform:translateX(-14px);transition:opacity .16s ease,transform .16s ease}
+  .sai-volta{opacity:0;transform:translateX(14px);transition:opacity .16s ease,transform .16s ease}
+
+  /* ---------- Texto ---------- */
+  h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:32px;line-height:1.18;
+    margin:0 0 18px;letter-spacing:-.015em}
+  h2{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:26px;line-height:1.26;
+    margin:0 0 4px;letter-spacing:-.012em}
+  @media(max-width:640px){h1{font-size:26px}h2{font-size:22px}}
+  .marco{display:inline-block;font-size:12px;font-weight:600;color:var(--green);
+    background:var(--green-soft);border-radius:100px;padding:4px 12px;margin-bottom:14px;
+    animation:sobe .4s var(--t) both}
+  @keyframes sobe{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .apoio{color:var(--ink-soft);font-size:14.5px;margin:10px 0 0;text-align:justify;hyphens:auto}
+  .lead{color:var(--ink-soft);font-size:17px;line-height:1.62;text-align:justify;hyphens:auto}
+  /* Destaque de marca-texto no que importa da frase. */
+  .dest{font-style:normal;font-weight:700;color:var(--ink);
+    box-shadow:inset 0 -.34em var(--green-soft)}
+  h1 .dest,h2 .dest{box-shadow:inset 0 -.30em var(--green-soft)}
+  .perguntas-abertura{margin:0 0 16px;padding:14px 18px;border-left:3px solid var(--green);
+    background:rgba(254,85,51,.05);border-radius:0 12px 12px 0}
+  .perguntas-abertura p{margin:0;color:var(--ink);font-weight:600;font-size:16px;text-align:left}
+  .perguntas-abertura p + p{margin-top:6px}
+  .lead p{margin:0 0 14px}
+  .lead strong{color:var(--ink);font-weight:600}
+
+  /* ---------- Opções ---------- */
+  .opcoes{display:flex;flex-direction:column;gap:9px;margin-top:26px}
+  .opcoes.duplas{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:stretch}
+  .opcoes.duplas .opt{height:100%}
+  .opcoes.duplas .opt[data-v="__other__"]{grid-column:2}
+  .opcoes.duplas .outro-campo{grid-column:2}
+  @media(max-width:680px){.opcoes.duplas{grid-template-columns:1fr}
+    .opcoes.duplas .opt[data-v="__other__"],.opcoes.duplas .outro-campo{grid-column:1}}
+
+  .opt{position:relative;overflow:hidden;display:flex;align-items:flex-start;gap:12px;
+    padding:14px 16px 14px 18px;background:#fff;
+    border:1px solid var(--line-soft);border-radius:var(--radius);cursor:pointer;
+    transition:border-color .18s var(--t),background .18s var(--t),transform .18s var(--t),box-shadow .18s var(--t)}
+  .opt:hover{border-color:#C4BFB1;transform:translateY(-1px);box-shadow:0 4px 14px -8px rgba(30,35,66,.28)}
+  .opt:active{transform:translateY(0)}
+  /* Escolha marcada: cor, faixa verde, texto em peso maior e leve elevação. */
+  .opt.on{border-color:var(--green);border-width:1.5px;background:var(--green-soft);
+    transform:translateY(-1px);box-shadow:0 8px 20px -12px rgba(254,85,51,.75)}
+  .opt.on .txt{color:var(--ink);font-weight:600}
+  .opt.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:var(--green);transform-origin:center;animation:faixa .34s var(--t) both}
+  @keyframes faixa{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+  /* Ao marcar: um pulso curto, um anel que se abre e uma onda saindo da caixinha. */
+  .opt.marcada{animation:marcar .42s var(--t)}
+  @keyframes marcar{
+    0%{transform:scale(1);box-shadow:0 0 0 0 rgba(254,85,51,.34)}
+    32%{transform:scale(1.035) translateY(-2px);box-shadow:0 0 0 7px rgba(254,85,51,.16)}
+    62%{transform:scale(.995)}
+    100%{transform:scale(1) translateY(-1px);box-shadow:0 8px 20px -12px rgba(254,85,51,.75)}
+  }
+  .opt.marcada::after{content:'';position:absolute;left:10px;top:50%;width:18px;height:18px;
+    margin:-9px 0 0 0;border-radius:50%;background:rgba(254,85,51,.30);
+    animation:onda .55s ease-out forwards;pointer-events:none}
+  @keyframes onda{to{transform:scale(22);opacity:0}}
+
+  .escala button.on{animation:notaMarcada .42s var(--t)}
+  @keyframes notaMarcada{
+    0%{transform:translateY(0) scale(1);box-shadow:0 0 0 0 rgba(254,85,51,.4)}
+    35%{transform:translateY(-6px) scale(1.09);box-shadow:0 0 0 8px rgba(254,85,51,.14)}
+    100%{transform:translateY(-2px) scale(1);box-shadow:0 6px 16px -8px rgba(254,85,51,.7)}
+  }
+  .opt.bloqueada{opacity:.4;cursor:not-allowed}
+  .opt.bloqueada:hover{transform:none;box-shadow:none;border-color:var(--line-soft)}
+  .opt span.txt{font-size:15.5px;line-height:1.4}
+
+  /* caixa de seleção própria: mantém o campo nativo, só troca a aparência */
+  .opt input{appearance:none;-webkit-appearance:none;margin:1px 0 0;flex:0 0 auto;
+    width:21px;height:21px;border:1.5px solid #C4BFB1;background:#fff;cursor:pointer;
+    display:grid;place-content:center;transition:all .18s var(--t)}
+  .opt input[type=radio]{border-radius:50%}
+  .opt input[type=checkbox]{border-radius:6px}
+  .opt input::after{content:'';width:11px;height:11px;transform:scale(0);
+    transition:transform .2s cubic-bezier(.2,1.5,.4,1);background:#fff;
+    clip-path:polygon(14% 47%,0 61%,40% 100%,100% 22%,86% 8%,38% 71%)}
+  .opt input:checked{background:var(--green);border-color:var(--green);animation:caixa .34s var(--t)}
+  @keyframes caixa{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
+  .opt input:checked::after{transform:scale(1)}
+  .opt input:disabled{cursor:not-allowed}
+
+  .contador{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gray);margin-top:14px}
+  .contador.cheio{color:var(--green)}
+
+  /* ---------- Escalas ---------- */
+  .escala{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;margin-top:28px}
+  .escala button{min-width:0;height:56px;padding:0;background:#fff;border:1px solid var(--line-soft);
+    border-radius:12px;font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--ink);
+    cursor:pointer;transition:all .16s var(--t)}
+  .escala button:hover{border-color:#C4BFB1;transform:translateY(-2px)}
+  .escala button.on{background:var(--green);border-color:var(--green);color:#fff;transform:translateY(-2px);
+    box-shadow:0 6px 16px -8px rgba(254,85,51,.7)}
+  .escala[data-pts="5"]{gap:10px}
+  .escala[data-pts="5"] button{height:64px;font-size:19px}
+  @media(max-width:640px){.escala{gap:5px}.escala button{height:48px;font-size:14px}}
+  @media(max-width:380px){.escala button{font-size:12.5px}}
+  .pontas{display:flex;justify-content:space-between;gap:16px;font-size:12.5px;
+    color:var(--gray);margin-top:12px}
+  .pontas span{max-width:22ch}
+  .pontas span:last-child{text-align:right}
+
+  /* ---------- Campos ---------- */
+  label.campo{display:block;margin-top:22px}
+  label.campo .rot{font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:7px;display:block}
+  input[type=text],input[type=email],textarea{
+    width:100%;font-family:'Inter',sans-serif;font-size:16px;color:var(--ink);background:#fff;
+    border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;resize:vertical;
+    transition:border-color .16s var(--t),box-shadow .16s var(--t)}
+  input:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(254,85,51,.13)}
+  textarea{min-height:140px;line-height:1.55;margin-top:24px}
+  textarea.curto{min-height:100px}
+  .outro-campo{margin-top:-2px}
+
+  /* ---------- Ações ---------- */
+  .acoes{display:flex;align-items:center;gap:20px;margin-top:26px;flex-wrap:wrap}
+  .acoes.centro{justify-content:center;margin-top:30px}
+  .btn{font-family:'Inter',sans-serif;font-weight:600;font-size:15.5px;border:none;
+    border-radius:12px;padding:15px 30px;cursor:pointer;background:var(--green);color:#fff;
+    display:inline-flex;align-items:center;gap:10px;
+    transition:transform .16s var(--t),box-shadow .16s var(--t),background .16s var(--t),opacity .16s}
+  .btn .seta{transition:transform .2s var(--t)}
+  .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(254,85,51,.7)}
+  .btn:hover:not(:disabled) .seta{transform:translateX(3px)}
+  .btn:disabled{opacity:.32;cursor:not-allowed}
+
+  .voltar{background:none;border:none;font:inherit;font-size:14.5px;color:var(--gray);
+    cursor:pointer;padding:6px 2px;transition:color .16s}
+  .voltar:hover{color:var(--ink)}
+  .btn-linha{background:#fff;color:var(--ink);border:1px solid var(--line);font-size:15px;padding:14px 24px}
+  .btn-linha:hover{border-color:var(--ink-soft)}
+  :focus-visible{outline:2px solid var(--green);outline-offset:3px}
+
+  .dica{font-size:13px;color:var(--gray);margin-top:16px;animation:sobe .3s var(--t) both}
+  .aviso-email{display:none;font-size:12.5px;color:var(--stamp-red);margin:7px 0 0}
+  .aviso-email.ver{display:block;animation:sobe .3s var(--t) both}
+  .erro{display:none;margin-top:16px;font-size:14px;color:var(--stamp-red);font-weight:500;
+    background:var(--stamp-red-soft);border-radius:12px;padding:12px 15px}
+  .erro.ver{display:block;animation:sobe .3s var(--t) both}
+
+  /* ---------- Conclusão ---------- */
+  .selo{width:70px;height:70px;border-radius:50%;background:var(--green);display:flex;
+    align-items:center;justify-content:center;margin:0 auto 26px;
+    animation:selo .6s var(--t) both;box-shadow:0 12px 30px -12px rgba(254,85,51,.9)}
+  @keyframes selo{0%{opacity:0;transform:scale(.4)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+  .selo svg{width:34px;height:34px;stroke:#fff;stroke-width:2.6;fill:none;
+    stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:32;stroke-dashoffset:32;
+    animation:risca .45s var(--t) .3s forwards}
+  @keyframes risca{to{stroke-dashoffset:0}}
+  .fim{text-align:center}
+  .fim .lead{text-align:left;max-width:56ch;margin:0 auto}
+  .registro{font-size:13px;color:var(--gray);margin-top:26px;text-align:center}
+
+  /* Balão de ajuda: aparece se a pessoa trava numa pergunta. */
+  .balao{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(24px);
+    width:270px;z-index:40;opacity:0;pointer-events:none;
+    background:#fff;border:1px solid var(--line-soft);border-left:4px solid var(--green);
+    border-radius:14px;padding:16px 18px 16px 16px;
+    box-shadow:0 18px 40px -20px rgba(30,35,66,.5);
+    transition:opacity .4s var(--t),transform .4s var(--t)}
+  .balao.ver{opacity:1;transform:translateY(-50%) translateX(0);pointer-events:auto}
+  .balao .titulo{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+  .balao p{margin:0;font-size:14px;line-height:1.5;color:var(--ink-soft);text-align:left}
+  .balao .fechar{position:absolute;top:8px;right:10px;background:none;border:none;
+    font-size:17px;line-height:1;color:var(--line);cursor:pointer;padding:2px 4px}
+  .balao .fechar:hover{color:var(--ink-soft)}
+  @media(max-width:1180px){
+    .balao{right:14px;left:14px;width:auto;top:auto;bottom:16px;
+      transform:translateY(20px);max-width:520px;margin:0 auto}
+    .balao.ver{transform:translateY(0)}
+  }
+
+  .rodape{margin-top:22px;text-align:center;font-size:12px;color:var(--gray)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+
+<div class="deco c d1"></div>
+<div class="deco d2"></div>
+<div class="deco c d3"></div>
+<div class="deco d4"></div>
+<div class="deco d5"></div>
+<div class="deco d6"></div>
+
+<div class="palco">
+  <div class="coluna">
+    <div class="topo">
+      <img class="brand-logo" alt="Insider" src="data:image/png;base64,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">
+      <div class="medidor">
+        <div class="progresso"><i id="barra"></i></div>
+        <div class="etapa" id="etapa"></div>
+      </div>
+    </div>
+
+    <main class="card" id="app" tabindex="-1"><p class="apoio">Carregando…</p></main>
+
+    <nav class="trilha" id="trilha" aria-label="Capítulos da jornada"></nav>
+
+    <p class="rodape">Mentoria 6D — Grupo IGD</p>
+  </div>
+</div>
+
+<script>
+/* ---------------- conteúdo da pesquisa ---------------- */
+const Q = {
+  q1:{n:1,t:'single',pnome:true,hl:["PRINCIPAL resultado"],
+    title:'Quando você entrou na mentoria 6D, qual era o PRINCIPAL resultado que queria alcançar?',
+    opts:['Fazer 6em7','Fazer 6em12','Orquestrar diferentes métodos de venda online','Aumentar o faturamento dos meus lançamentos','Melhorar minha estratégia de vendas','Estruturar e escalar melhor meu negócio digital','Aumentar e desenvolver meu time','Ter mais clareza sobre o próximo passo','Sair da estagnação e voltar a crescer'],other:true},
+
+  q2:{n:2,t:'scale',hl:["quanto você acredita que evoluiu"],
+    title:'Pensando em como você chegou na 6D e em como está hoje, quanto você acredita que evoluiu?',
+    left:'Sinto que ainda estou praticamente no mesmo lugar',right:'Minha realidade mudou muito desde que entrei',
+    help:'Não pense apenas em faturamento. Considere também clareza, conhecimento, execução, confiança, decisões tomadas, estrutura e maturidade do seu negócio.',
+    balao:'Não pense apenas em faturamento. Considere também a clareza que você ganhou, as decisões que tomou e o quanto seu negócio amadureceu desde que entrou.'},
+
+  q3:{n:3,t:'multi',hl:["vitórias você já conquistou"],
+    title:'Às vezes estamos tão focados no próximo resultado que esquecemos o quanto já avançamos. Quais dessas vitórias você já conquistou desde que entrou na 6D?',
+    help:'Marque todas que fizerem sentido para você.',
+    opts:['Tive mais clareza sobre meu modelo de negócio','Criei ou melhorei meus produtos','Aumentei minha audiência','Fiz algo que vinha adiando há muito tempo','Realizei meu primeiro lançamento','Fiz um novo lançamento','Aumentei minhas vendas','Aumentei meu faturamento','Tive meu maior faturamento até hoje','Melhorei minha conversão','Aprendi a analisar melhor meus números','Organizei melhor minha empresa','Comecei a montar/delegar para um time','Passei a tomar decisões com mais segurança','Ganhei mais clareza sobre o que fazer a seguir','Conheci pessoas que contribuíram para meu negócio','Fiz parcerias ou conexões dentro da comunidade','Superei uma trava ou insegurança importante','Voltei a executar depois de um período parado','Ainda não consigo identificar uma conquista concreta'],other:true,
+    balao:'Marque sem economizar. Cada vitória conta, mesmo as que parecem pequenas.'},
+
+  q4:{n:4,t:'open',pnome:true,hl:["mais te deixa orgulhoso"],
+    title:'De todas essas evoluções, qual conquista mais te deixa orgulhoso até aqui?',
+    help:'Pode ser um grande resultado ou uma pequena vitória que representou muito para você.',ph:'Conte em poucas linhas…',
+    balao:'Pense naquela vez em que você contou algo para alguém com orgulho no tom de voz. Provavelmente é essa.'},
+
+  q5:{n:5,t:'multi',max:3,hl:["mais contribuiu para a sua evolução"],
+    title:'O que mais contribuiu para a sua evolução dentro da 6D?',
+    help:'Escolha até 3.',
+    opts:['Navegador','Projeto 1+','Projeto Black','Encontros presenciais','Comunidade no Telegram','Aulas da área de membros','Conteúdos e frameworks','Plantão ao vivo','Networking e conexões','Ver exemplos/resultados de outros 6Ds','Análise de lançamento','Minha própria execução a partir do que aprendi'],other:true,
+    balao:'Teste assim: se você tirasse cada uma dessas coisas da sua jornada, qual faria mais falta?'},
+
+  q6:{n:6,t:'multi',max:3,hl:["INDISPENSÁVEIS"],
+    title:'Pensando na sua experiência até aqui, quais entregas da 6D você considera INDISPENSÁVEIS?',
+    help:'Escolha até 3.',
+    opts:['Projeto 1+','Projeto Black','Checkup de Lançamento','Análise de Lançamento','Encontros presenciais','Comunidade no Telegram','Aulas da área de membros','Conteúdos e frameworks','Plantões ao vivo'],other:true,
+    balao:'Pergunte-se: sem qual dessas entregas a sua experiência na 6D não teria sido a mesma?'},
+
+  q6b:{n:'6B',t:'open',short:true,hl:["tão importantes para você"],
+    title:'Por que essas entregas são tão importantes para você?',ph:'Em uma ou duas frases…',
+    balao:'Uma ou duas frases bastam. O que essas entregas destravaram para você na prática?'},
+
+  q7:{n:7,t:'open',short:true,pnome:true,hl:["maior dificuldade nesse momento"],
+    title:'O que você considera que seja a sua maior dificuldade nesse momento?',ph:'Em poucas linhas…',
+    balao:'Normalmente é aquilo que você vem adiando, ou o que sempre reaparece quando você tenta avançar.'},
+
+  q8:{n:8,t:'single',pnome:true,hl:["PRINCIPAL resultado","próximos 12 meses"],
+    title:'Qual é o PRINCIPAL resultado que você quer alcançar nos próximos 12 meses?',
+    opts:['Fazer lançamentos com mais consistência','Aumentar meu faturamento','Fazer um 6em7','Atingir 7 dígitos','Escalar meus produtos','Crescer minha audiência','Construir um negócio mais previsível','Escalar o meu negócio','Estruturar meu time','Me tornar menos dependente da operação','Melhorar minha margem/lucro','Aumentar a esteira de produtos'],other:true,
+    detail:'Quer detalhar esse objetivo? (opcional)',
+    balao:'Imagine a sua próxima virada de ano. O que precisa ser verdade nessa data para você comemorar?'},
+
+  q9:{n:9,t:'multi',max:3,hl:["te impedindo de chegar nesse próximo nível"],
+    title:'Hoje, o que mais está te impedindo de chegar nesse próximo nível?',help:'Escolha até 3.',
+    opts:['Falta de clareza estratégica','Falta de execução','Falta de tempo','Falta de consistência','Dificuldade de produzir conteúdo','Copy/comunicação','Tráfego','Vendas/conversão','Gestão dos números','Equipe','Organização','Insegurança ou medo de errar','Dificuldade de tomar decisões sozinho','Falta de acompanhamento/cobrança','Ainda não sei exatamente o que está me impedindo'],other:true,
+    balao:'Se nada mudar nos próximos meses, o que vai continuar te segurando no mesmo lugar?'},
+
+  q10:{n:10,t:'multi',max:3,hl:["MAIS ajuda"],
+    title:'Em quais áreas você gostaria de receber MAIS ajuda daqui para frente?',help:'Escolha até 3.',
+    opts:['Estratégia de lançamento','Oferta','Nicho/avatar','Produtos','Conteúdo e audiência','Instagram/redes sociais','Copy','Tráfego pago','Vendas/conversão','Métricas e números','IA aplicada ao negócio','Gestão','Liderança','Montagem de equipe','Processos','Escala','Organização e execução','Accountability/acompanhamento','Networking','Estudos de caso de outros membros'],other:true,
+    balao:'Pense no que faria o seu próximo lançamento ser diferente do último. É por aí.'},
+
+  q11:{n:11,t:'open',pnome:true,hl:["UMA única coisa"],
+    title:'Se você pudesse mudar, adicionar ou melhorar UMA única coisa na mentoria 6D para acelerar seus resultados, o que seria?',
+    help:'Se só pudéssemos escolher UMA melhoria a partir da sua resposta, qual deveria ser?',ph:'Escreva a mudança que faria mais diferença…',
+    balao:'Sem filtro: se você pudesse pedir uma única coisa para a equipe da 6D, o que pediria?'},
+
+  q12:{n:12,t:'scale',hl:["recomendaria a mentoria 6D"],
+    title:'De 0 a 10, o quanto você recomendaria a mentoria 6D para alguém que quer escalar seu negócio digital?',
+    left:'Não recomendaria',right:'Recomendaria com certeza',
+    balao:'Pense em alguém real que te pediu uma indicação. Você mandaria essa pessoa para cá?'},
+
+  q12b:{n:'12B',t:'open',short:true,hl:["mais pesou"],
+    title:'O que mais pesou para você dar essa nota?',
+    help:'Sobre a nota que você deu à 6D.',ph:'Em poucas palavras…',
+    balao:'O que fez a nota não ser mais alta? Ou, se foi alta, o que pesou para ela ser assim?'},
+
+  q13:{n:13,t:'scale',min:1,to:5,hl:["satisfeito com a Mentoria 6D"],
+    title:'De 1 a 5, o quanto você está satisfeito com a Mentoria 6D?',
+    left:'Nada satisfeito',right:'Muito satisfeito',
+    balao:'Considere a experiência inteira: entregas, acompanhamento, comunidade e resultado.'},
+
+  q13b:{n:'13B',t:'open',short:true,hl:["mais pesou"],
+    title:'O que mais pesou para você dar essa nota?',
+    help:'Sobre a sua satisfação com a Mentoria 6D.',ph:'Em poucas palavras…',
+    balao:'Uma frase honesta ajuda muito mais do que uma nota redonda. Pode escrever do seu jeito.'},
+
+  q14:{n:14,t:'single',hl:["mais representa o momento que você está vivendo"],
+    title:'Pensando nos próximos 12 meses, qual dessas frases mais representa o momento que você está vivendo?',
+    opts:['Ainda tenho muito para construir e quero continuar avançando com o apoio da 6D.',
+          'Vejo valor em continuar minha jornada na 6D, mas existem alguns pontos que preciso avaliar.',
+          'Ainda não tenho clareza sobre qual será meu próximo passo.',
+          'Sinto que aproveitei bastante minha jornada, mas ainda não sei se a 6D fará parte do meu próximo ciclo.',
+          'Sinto que concluí o ciclo que precisava dentro da 6D neste momento.'],
+    balao:'Não precisa ser uma decisão definitiva. Escolha a frase que mais se parece com o seu momento de hoje.'},
+
+  q14b:{n:'14B',t:'multi',max:2,hl:["mais pesa nessa decisão"],
+    title:'O que mais pesa nessa decisão hoje?',help:'Escolha até 2.',
+    opts:['Investimento financeiro','Ainda não tive o resultado que esperava','Não consegui aproveitar a mentoria 6D como gostaria','Falta de tempo','Estou em outro momento do negócio','Ainda não enxergo claramente o que teria para avançar em um próximo ciclo','Preciso primeiro executar o que já aprendi','Algumas entregas não atenderam minhas expectativas','Estou avaliando outras prioridades','Ainda não pensei sobre isso'],other:true,
+    balao:'Pode ser franco. É exatamente isso que a gente precisa saber para melhorar a mentoria.'},
+
+  q15:{n:15,t:'open',pnome:true,hl:["O que precisaria ter acontecido"],
+    title:'Para fechar: imagine que daqui a 12 meses você olhe para trás e pense… "Continuar essa jornada foi uma das melhores decisões que tomei para o meu negócio." O que precisaria ter acontecido para você sentir isso?',
+    ph:'Descreva o cenário que faria você pensar isso…',
+    balao:'Imagine a cena daqui a 12 meses. O que teria acontecido nesse período para você pensar isso?'}
+};
+
+
+const SCREENS = [
+  {id:'abertura',kind:'intro'},
+  {id:'ident',kind:'ident'},
+  'q1','q2','q3','q4','q5','q6','q6b','q7',
+  {id:'meio',kind:'interlude',
+   hl:["olhar para o próximo"], title:'Agora que você olhou para o caminho que já percorreu, queremos olhar para o próximo. 🔭',
+   body:['Porque evolução não é apenas perceber o quanto já avançamos.','É também ter clareza sobre onde queremos chegar.']},
+  'q8','q9','q10','q11','q12','q12b','q13','q13b',
+  {id:'meio2',kind:'interlude',
+   hl:["quase terminando"], title:'Estamos quase terminando. ⏳',
+   body:['Você já relembrou de onde saiu, reconheceu suas conquistas e definiu onde quer chegar.','Agora queremos entender como você enxerga o próximo capítulo dessa jornada.']},
+  'q14','q14b','q15',
+  {id:'fim',kind:'final'}
+];
+
+/* Capítulos: dão nome ao trecho da jornada em que a pessoa está.
+   Não mudam nenhuma pergunta, só organizam a leitura do progresso. */
+const CAPITULOS = [
+  {nome:'Seu ponto de partida', ids:['q1','q2']},
+  {nome:'Suas conquistas',      ids:['q3','q4','q5']},
+  {nome:'Sua experiência',      ids:['q6','q6b','q7']},
+  {nome:'Seu próximo nível',    ids:['q8','q9','q10','q11']},
+  {nome:'Sua avaliação',        ids:['q12','q12b','q13','q13b']},
+  {nome:'O próximo capítulo',   ids:['q14','q14b','q15']}
+];
+/* mesmo agrupamento — perguntas análogas às do Insider */
+const capituloDe = id => (CAPITULOS.find(c=>c.ids.includes(id))||{}).nome || '';
+
+/* ---------------- estado ---------------- */
+const A = {nome:'',email:'',respostas:{}};
+let i = 0, dir = 1, savedOk = false, lastEntry = null, transitando = false;
+let app, barra, etapa;
+const marcosVistos = new Set();
+
+const norm = s => (typeof s==='string') ? {id:s,kind:'q',...Q[s]} : s;
+const visible = s => !(s.id==='q14b' && A.respostas.q14 && A.respostas.q14.value === Q.q14.opts[0]);
+const questionIds = SCREENS.map(norm).filter(s=>s.kind==='q').map(s=>s.id);
+const idsVisiveis = ()=> questionIds.filter(id=>visible(norm(id)));
+const posicaoDe = id => idsVisiveis().indexOf(id)+1;
+/* Chama a pessoa pelo primeiro e segundo nome. Partículas como "de" e "dos"
+   não contam como segundo nome, e o que vier em CAIXA ALTA é normalizado. */
+const LIGACOES = ['de','da','do','das','dos','e','di','du'];
+function arrumar(parte){
+  const p = parte.toLowerCase();
+  return p.charAt(0).toUpperCase() + p.slice(1);
+}
+function nomeCurto(){
+  const partes = (A.nome||'').trim().split(/\s+/).filter(Boolean);
+  if(!partes.length) return '';
+  const primeiro = arrumar(partes[0]);
+  const segundo = partes[1];
+  if(segundo && !LIGACOES.includes(segundo.toLowerCase()) && segundo.length > 1){
+    return primeiro + ' ' + arrumar(segundo);
+  }
+  return primeiro;
+}
+const primeiroNome = nomeCurto;
+
+/* ---------------- envio das respostas ---------------- */
+/* Endereço do Apps Script ligado à planilha da equipe. Para trocar de planilha,
+   basta publicar um novo App da Web e substituir esta linha. */
+const ENDPOINT = 'https://script.google.com/macros/s/AKfycbydWrP2N8-x_lCErYYPUpb0QEhO5DU-4kWZYeGytoaRr67XylTyyNpnZl_z4r6NrQVy/exec';
+
+function comLimite(promessa, ms){
+  return Promise.race([promessa, new Promise((_,rej)=>setTimeout(()=>rej(new Error('tempo esgotado')), ms))]);
+}
+
+const LABELS = {nome:'Nome',email:'E-mail',enviadoEm:'Enviado em'};
+Object.entries(Q).forEach(([k,v])=>{
+  v.n = posicaoDe(k) || v.n;
+  const base = v.title.replace(/\s+/g,' ').slice(0,70);
+  LABELS[k] = 'P'+v.n+' — ' + (v.title.startsWith('Descreva') && v.help ? 'Motivo da nota: '+v.help : base);
+});
+
+/* Monta a linha da planilha: rótulos e valores na mesma ordem. */
+function linhaDaPlanilha(entry){
+  const colunas = ['Nome','E-mail','Enviado em'];
+  const valores = [entry.nome, entry.email, new Date(entry.enviadoEm).toLocaleString('pt-BR')];
+  Object.keys(Q).forEach(k=>{
+    colunas.push(LABELS[k] || k);
+    const v = entry.respostas[k];
+    valores.push(
+      v == null ? '' :
+      Array.isArray(v) ? v.join(' | ') :
+      (typeof v === 'object' ? v.resposta + (v.detalhe ? ' | detalhe: '+v.detalhe : '') : v)
+    );
+  });
+  return {email: entry.email, colunas, valores};
+}
+
+async function enviar(entry){
+  const corpo = JSON.stringify(linhaDaPlanilha(entry));
+  try{
+    // text/plain evita a requisição de verificação que o Apps Script não responde.
+    const r = await comLimite(fetch(ENDPOINT, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:corpo, redirect:'follow'
+    }), 15000);
+    const j = await r.json();
+    return !!j.ok;
+  }catch(e){
+    // Se a confirmação não puder ser lida, envia de novo às cegas: a linha chega
+    // à planilha mesmo sem resposta legível, e gravar é melhor do que perder.
+    try{ await fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:corpo}); }catch(e2){}
+    return false;
+  }
+}
+
+async function emailJaRespondeu(email){
+  try{
+    const r = await comLimite(fetch(ENDPOINT + '?email=' + encodeURIComponent(email)), 8000);
+    const j = await r.json();
+    return !!j.existe;
+  }catch(e){ return false; }   // na dúvida, deixa responder
+}
+
+/* Rascunho no navegador de quem responde, apagado ao concluir. */
+const CHAVE = 'jornada_6d_v1';
+function lerRascunho(){ try{ return JSON.parse(localStorage.getItem(CHAVE)); }catch(e){ return null; } }
+function salvarRascunho(){ try{ localStorage.setItem(CHAVE, JSON.stringify({A,i})); }catch(e){} }
+function limparRascunho(){ try{ localStorage.removeItem(CHAVE); }catch(e){} }
+
+/* ---------------- progresso ---------------- */
+/* Marcos aparecem uma única vez, em pontos escolhidos — mostrar em toda tela
+   viraria ruído e perderia o efeito. */
+function marcoPara(pos, total){
+  if(pos === total) return 'Última pergunta';
+  const pct = pos/total;
+  if(pos === 1) return 'Vamos começar';
+  if(pct >= .9) return 'Últimos passos';
+  if(pct >= .72) return 'Falta pouco';
+  if(pct >= .46 && pct <= .58) return 'Você já está na metade';
+  if(pct >= .24 && pct <= .3) return 'Boa, estamos avançando';
+  return null;
+}
+
+/* O avanço mostrado é maior que o avanço real: a curva sobe rápido no começo e
+   desacelera no fim, para a jornada parecer sempre mais perto de terminar do que
+   a contagem crua diria. Quem chega na última pergunta vê 96%, não 95%. */
+function exibir(real){
+  if(real <= 0) return 0.08;   // a primeira pergunta já nasce com barra visível
+  if(real >= 1) return 1;
+  return 0.08 + 0.92 * Math.pow(real, 0.78);
+}
+
+function progresso(pReal, rotulo, cru){
+  const p = cru ? pReal : exibir(pReal);
+  barra.style.width = (p*100).toFixed(1) + '%';
+  etapa.innerHTML = '';
+  if(rotulo){
+    const r = document.createElement('span'); r.textContent = rotulo;
+    etapa.appendChild(r);
+    const d = document.createElement('span'); d.className='ponto'; etapa.appendChild(d);
+  }
+  const pc = document.createElement('span'); pc.className='pct';
+  pc.textContent = Math.round(p*100) + '% concluído';
+  etapa.appendChild(pc);
+}
+
+/* ---------------- balão de ajuda ---------------- */
+/* Um empurrãozinho para quem trava na pergunta. Nas de marcar, 20 segundos;
+   nas de escrever, 40 — ali a pessoa costuma estar formulando a frase, e o
+   balão cedo demais soaria como pressa. Se ela já respondeu, não aparece. */
+let relogioBalao = null, balao = null;
+
+function esconderBalao(){
+  clearTimeout(relogioBalao);
+  if(balao) balao.classList.remove('ver');
+}
+
+function agendarBalao(texto, espera){
+  esconderBalao();
+  if(!texto) return;
+  relogioBalao = setTimeout(()=>{
+    const btn = app.querySelector('.btn');
+    if(btn && !btn.disabled) return;            // já respondeu, não precisa de ajuda
+    if(!balao){
+      balao = el('div','balao');
+      document.body.appendChild(balao);
+    }
+    balao.innerHTML = '<div class="titulo">✦ Uma ajudinha</div><p></p>' +
+                      '<button class="fechar" aria-label="Fechar">×</button>';
+    balao.querySelector('p').textContent = texto;
+    balao.querySelector('.fechar').onclick = ()=>balao.classList.remove('ver');
+    balao.classList.add('ver');
+  }, espera);
+}
+
+/* ---------------- trilha de capítulos ---------------- */
+let trilha;
+function montarTrilha(){
+  if(!trilha) return;
+  trilha.innerHTML = '';
+  CAPITULOS.forEach((c,k)=>{
+    const linha = el('button','cap');
+    linha.type = 'button';
+    linha.title = 'Voltar para: ' + c.nome;
+    linha.appendChild(el('span','bolha'));
+    linha.appendChild(el('span','nome', c.nome));
+    linha.onclick = ()=>irParaCapitulo(k);
+    trilha.appendChild(linha);
+  });
+}
+/* -1 antes de começar, CAPITULOS.length quando a jornada termina. */
+function marcarTrilha(indice){
+  if(!trilha) return;
+  [...trilha.children].forEach((linha,k)=>{
+    linha.classList.toggle('feito', k < indice);
+    linha.classList.toggle('atual', k === indice);
+    // Só dá para voltar: capítulos ainda não alcançados continuam bloqueados.
+    linha.disabled = k > indice || indice < 0;
+  });
+}
+
+/* Clicar num capítulo leva à primeira pergunta dele, com as respostas
+   preservadas — serve para conferir ou corrigir o que já foi marcado. */
+function irParaCapitulo(k){
+  const atual = capituloAtual(norm(SCREENS[i]));
+  if(atual < 0 || k > atual || k === atual) return;
+  const alvo = CAPITULOS[k].ids.find(id=>visible(norm(id)));
+  const idx = SCREENS.indexOf(alvo);
+  if(idx < 0) return;
+  saltarPara(idx, idx < i ? -1 : 1);
+}
+function capituloAtual(s){
+  if(s.kind==='final') return CAPITULOS.length;
+  if(s.kind==='q') return CAPITULOS.findIndex(c=>c.ids.includes(s.id));
+  if(s.kind==='interlude'){
+    const prox = SCREENS.slice(i+1).find(t=>typeof t==='string');
+    return prox ? CAPITULOS.findIndex(c=>c.ids.includes(prox)) : -1;
+  }
+  return -1;
+}
+
+/* ---------------- render ---------------- */
+function el(tag, cls, html){ const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+const seta = '<span class="seta">→</span>';
+
+/* Marca-texto no trecho que carrega o sentido da pergunta. O título guardado em
+   Q continua limpo — o realce é só na tela, os rótulos da planilha não mudam. */
+/* Monta o título da pergunta, com o nome de quem responde quando a pergunta
+   foi marcada para isso — só em algumas, senão vira vício de linguagem. */
+function titulo(s){
+  const n = nomeCurto();
+  let t = s.title;
+  if(n && s.pnome){
+    t = t.startsWith('Para fechar:')
+      ? t.replace('Para fechar:', 'Para fechar, ' + n + ':')
+      : n + ', ' + t.charAt(0).toLowerCase() + t.slice(1);
+  }
+  return realce(t, s.hl);
+}
+
+function realce(txt, palavras){
+  (palavras||[]).forEach(p=>{ txt = txt.replace(p, '<em class="dest">'+p+'</em>'); });
+  return txt;
+}
+
+function render(){
+  esconderBalao();
+  const s = norm(SCREENS[i]);
+  if(s.kind==='q' && !visible(s)){ i += (dir>=0?1:-1); return render(); }
+  app.innerHTML = '';
+  app.classList.remove('sai','sai-volta','entra','entra-volta','fim');
+  void app.offsetWidth;                        // reinicia a animação de entrada
+  app.classList.add(dir>=0 ? 'entra' : 'entra-volta');
+
+  const total = idsVisiveis().length;
+  if(s.kind==='q'){
+    const pos = posicaoDe(s.id);
+    progresso((pos-1)/total, capituloDe(s.id));
+  } else if(s.kind==='final'){
+    progresso(1, 'Jornada concluída', true);
+  } else if(s.kind==='interlude'){
+    const feitas = questionIds.slice(0, questionIds.indexOf(SCREENS[i-1])+1).filter(id=>visible(norm(id))).length;
+    progresso(feitas/total, 'Novo capítulo');
+  } else if(s.kind==='ident'){
+    progresso(.08, 'Vamos começar', true);   // o progresso nasce no primeiro clique
+  } else {
+    progresso(0, '', true);
+  }
+
+  marcarTrilha(capituloAtual(s));
+  if(trilha) trilha.classList.toggle('travada', s.kind==='final');
+  if(s.kind==='final' && trilha) [...trilha.children].forEach(b=>b.disabled = true);
+
+  if(s.kind==='intro')     return intro();
+  if(s.kind==='ident')     return identificacao();
+  if(s.kind==='retomar')   return retomar();
+  if(s.kind==='interlude') return interludio(s);
+  if(s.kind==='final')     return conclusao();
+  return pergunta(s);
+}
+
+/* Ações: Continuar em destaque, Voltar discreto ao lado. */
+function acoes(rotulo, aoAvancar, mostrarVoltar=true, verde=false){
+  const n = el('div','acoes' + (mostrarVoltar ? '' : ' centro'));
+  const b = el('button','btn'+(verde?' verde':''), rotulo + seta);
+  b.onclick = aoAvancar; n.appendChild(b);
+  if(mostrarVoltar){
+    const v = el('button','voltar','← Voltar');
+    v.onclick = ()=>ir(-1); n.appendChild(v);
+  }
+  app.appendChild(n);
+  return b;
+}
+
+function intro(){
+  app.appendChild(el('h1',null,'Você já percorreu uma <em class="dest">parte importante</em> da sua jornada na 6D.'));
+  const l = el('div','lead');
+  l.innerHTML = `<p><strong>Agora, queremos olhar para essa jornada com você.</strong></p>
+  <p>Nem sempre a gente percebe o quanto já caminhou. Desde que você entrou na 6D, muita coisa pode ter mudado: novas decisões, novas estratégias, mais clareza, resultados, aprendizados e até desafios que ajudaram você a evoluir.</p>
+  <p>Grandes conquistas importam. Mas as <strong>pequenas vitórias também contam</strong>: um lançamento que saiu do papel, uma campanha que finalmente rodou, uma decisão que destravou o negócio, uma aula aplicada, uma conversa que trouxe clareza ou simplesmente a confiança de saber melhor qual é o próximo passo.</p>
+  <p><strong>Agora queremos ouvir você.</strong></p>`;
+  app.appendChild(l);
+
+  const bloco = el('div','perguntas-abertura');
+  bloco.innerHTML = `<p>O que mudou desde que você entrou?</p>
+  <p>Onde você está hoje?</p>
+  <p>E o que precisa acontecer para você chegar ao seu próximo nível?</p>`;
+  app.appendChild(bloco);
+
+  const fecho = el('div','lead');
+  fecho.innerHTML = `<p>Leva poucos minutos, e suas respostas vão nos ajudar a entender melhor a sua jornada e como tornar os próximos passos ainda mais relevantes para você.</p>
+  <p><strong>Vamos olhar para o que você já construiu e pensar no que vem pela frente?</strong></p>`;
+  app.appendChild(fecho);
+
+  acoes('Começar minha jornada', ()=>ir(1), false);
+}
+
+function retomar(){
+  app.appendChild(el('h2',null,'Você já começou a sua jornada'+(primeiroNome()?', '+primeiroNome():'')+'.'));
+  app.appendChild(el('p','apoio','Guardamos tudo o que você já respondeu neste navegador. Quer continuar de onde parou?'));
+  const rascunho = lerRascunho();
+  const n = el('div','acoes');
+  const b = el('button','btn verde','Continuar de onde parei'+seta);
+  b.onclick = ()=>{ i = rascunho.i; dir = 1; render(); };
+  const r = el('button','voltar','Recomeçar do início');
+  r.onclick = ()=>{ limparRascunho(); A.respostas = {}; i = 0; dir = 1; render(); };
+  n.appendChild(b); n.appendChild(r); app.appendChild(n);
+}
+
+function interludio(s){
+  app.appendChild(el('h1',null,realce(primeiroNome() ? s.title.replace('Agora que você','Agora que você, '+primeiroNome()+',') : s.title, s.hl)));
+  const l = el('div','lead'); s.body.forEach(t=>l.appendChild(el('p',null,t)));
+  app.appendChild(l);
+  acoes('Continuar', ()=>ir(1));
+}
+
+function identificacao(){
+  app.appendChild(el('h2',null,'Antes de começar, quem está respondendo?'));
+  app.appendChild(el('p','apoio','Use o mesmo nome e e-mail cadastrados na mentoria — é assim que conectamos suas respostas ao seu acompanhamento.'));
+
+  const f1 = el('label','campo'); f1.innerHTML = '<span class="rot">Nome completo</span>';
+  const nome = el('input'); nome.type='text'; nome.value=A.nome; nome.placeholder='Seu nome'; nome.autocomplete='name';
+  f1.appendChild(nome); app.appendChild(f1);
+
+  const f2 = el('label','campo');
+  f2.innerHTML = '<span class="rot">E-mail <em class="dest">cadastrado</em> na mentoria</span>';
+  const mail = el('input'); mail.type='email'; mail.value=A.email; mail.placeholder='voce@email.com'; mail.autocomplete='email';
+  const aviso = el('p','aviso-email','Lembre-se de inserir o mesmo e-mail do cadastro da mentoria.');
+  f2.appendChild(mail); f2.appendChild(aviso); app.appendChild(f2);
+  // O lembrete só aparece quando a pessoa começa a digitar: antes disso seria ruído.
+  mail.addEventListener('input', ()=>aviso.classList.toggle('ver', mail.value.trim().length > 0));
+
+  const err = el('p','erro'); app.appendChild(err);
+  const btn = acoes('Continuar', async ()=>{
+    A.nome = nome.value.trim(); A.email = mail.value.trim().toLowerCase();
+    if(A.nome.length < 2){ falha(err,'Escreva seu nome para continuar.'); nome.focus(); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(A.email)){ falha(err,'Confira o e-mail: parece incompleto.'); mail.focus(); return; }
+    btn.disabled = true; btn.textContent = 'Verificando…';
+    const repetido = await emailJaRespondeu(A.email);
+    btn.disabled = false; btn.innerHTML = 'Continuar' + seta;
+    if(repetido){ jaRespondeu(); return; }
+    ir(1);
+  });
+  setTimeout(()=>nome.focus(), 340);
+}
+
+function jaRespondeu(){
+  app.innerHTML = '';
+  app.appendChild(el('h2',null,'Já recebemos a sua resposta'));
+  app.appendChild(el('p','apoio','Este e-mail já consta na pesquisa, e cada Insider responde uma vez só. Se você acredita que houve um engano, ou se quer revisar o que respondeu, fale com a equipe do Insider.'));
+  const n = el('div','acoes');
+  const b = el('button','btn btn-linha','Usar outro e-mail');
+  b.onclick = ()=>render();
+  n.appendChild(b); app.appendChild(n);
+}
+
+function falha(err,msg){ err.textContent=msg; err.classList.add('ver'); }
+
+function pergunta(s){
+  const r = A.respostas[s.id] || {};
+  const total = idsVisiveis().length, pos = posicaoDe(s.id);
+
+  agendarBalao(s.balao, s.t==='open' ? 40000 : 20000);
+
+  const marco = marcoPara(pos, total);
+  if(marco && !marcosVistos.has(marco)){ marcosVistos.add(marco); app.appendChild(el('div','marco',marco)); }
+
+  app.appendChild(el('h2',null,titulo(s)));
+  if(s.help) app.appendChild(el('p','apoio',s.help));
+  const err = el('p','erro');
+  const ultima = pos === total;
+  const rotulo = ultima ? 'Finalizar jornada' : 'Continuar';
+
+  /* ---- escala ---- */
+  if(s.t==='scale'){
+    let val = r.value ?? null;
+    const caixa = el('div','escala');
+    const de = s.min ?? 0, ate = s.to ?? 10;
+    caixa.dataset.pts = (ate-de+1);
+    for(let k=de;k<=ate;k++){
+      const b = el('button',null,k);
+      b.style.animationDelay = (0.16 + (k-de)*0.03).toFixed(3) + 's';
+      if(val===k) b.classList.add('on');
+      b.onclick = ()=>{ val=k; [...caixa.children].forEach(c=>c.classList.remove('on')); b.classList.add('on'); travar(); };
+      caixa.appendChild(b);
+    }
+    app.appendChild(caixa);
+    const pontas = el('div','pontas');
+    pontas.innerHTML = `<span>${de} — ${s.left}</span><span>${ate} — ${s.right}</span>`;
+    app.appendChild(pontas);
+    const dica = el('p','dica','Escolha uma nota para continuar.');
+    app.appendChild(dica); app.appendChild(err);
+    const btn = acoes(rotulo, ()=>{ if(val===null) return; A.respostas[s.id]={value:val}; ir(1); }, true, ultima);
+    function travar(){ const ok = val!==null; btn.disabled = !ok; dica.style.display = ok ? 'none' : ''; }
+    travar();
+    return;
+  }
+
+  /* ---- resposta aberta ---- */
+  if(s.t==='open'){
+    const t = el('textarea'); t.placeholder = s.ph||''; t.value = r.value||'';
+    if(s.short) t.classList.add('curto');
+    app.appendChild(t);
+    const dica = el('p','dica','Escreva sua resposta para continuar.');
+    app.appendChild(dica); app.appendChild(err);
+    const btn = acoes(rotulo, ()=>{
+      const v = t.value.trim();
+      if(!v) return;
+      A.respostas[s.id]={value:v}; ir(1);
+    }, true, ultima);
+    function travar(){ const ok = !!t.value.trim(); btn.disabled = !ok; dica.style.display = ok ? 'none' : ''; }
+    t.oninput = travar; travar();
+    setTimeout(()=>t.focus(), 340);
+    return;
+  }
+
+  /* ---- escolha única e múltipla ---- */
+  const multi = s.t==='multi';
+  let sel = multi ? new Set(r.raw||[]) : (r.raw||null);
+  let outroTxt = r.other||'';
+  const caixa = el('div','opcoes');
+  const itens = [...s.opts, ...(s.other?['__other__']:[])];
+  if(itens.length >= 10 && s.opts.every(o=>o.length <= 64)) caixa.classList.add('duplas');
+  const contador = s.max ? el('p','contador') : null;
+  let btn = null, detalhe = null, ultimoToque = null;
+
+  function atualizar(){
+    [...caixa.children].forEach(no=>{
+      if(!no.dataset.v) return;
+      const v = no.dataset.v;
+      const on = multi ? sel.has(v) : sel===v;
+      no.classList.toggle('on', on);
+      if(on && no.dataset.v === ultimoToque){ no.classList.remove('marcada'); void no.offsetWidth; no.classList.add('marcada'); }
+      no.querySelector('input').checked = on;
+      const cheio = s.max && multi && sel.size>=s.max && !on;
+      no.classList.toggle('bloqueada', !!cheio);
+      no.querySelector('input').disabled = !!cheio;
+    });
+    const w = document.getElementById('outrocampo');
+    if(w) w.style.display = (multi ? sel.has('__other__') : sel==='__other__') ? 'block' : 'none';
+    if(contador){
+      contador.textContent = `${sel.size} de ${s.max} selecionadas`;
+      contador.classList.toggle('cheio', sel.size>=s.max);
+    }
+    travar();
+  }
+
+  /* Sem resposta válida o botão fica bloqueado, com a indicação logo acima. */
+  function travar(){
+    if(!btn) return;
+    const tem = multi ? sel.size>0 : !!sel;
+    const outroVazio = (multi ? sel.has('__other__') : sel==='__other__') && !outroTxt.trim();
+    const ok = tem && !outroVazio;
+    btn.disabled = !ok;
+    dica.textContent = !tem
+      ? (multi ? 'Selecione ao menos uma opção para continuar.' : 'Escolha uma opção para continuar.')
+      : 'Complete o campo “Qual?” para avançar.';
+    dica.style.display = ok ? 'none' : '';
+  }
+
+  itens.forEach(v=>{
+    const lab = el('label','opt'); lab.dataset.v = v;
+    const inp = el('input'); inp.type = multi?'checkbox':'radio'; inp.name = s.id;
+    lab.appendChild(inp);
+    lab.appendChild(el('span','txt', v==='__other__' ? 'Outro' : v));
+    lab.style.animationDelay = (0.16 + itens.indexOf(v)*0.028).toFixed(3) + 's';
+    inp.onchange = ()=>{
+      if(multi){
+        if(inp.checked){ if(sel.size < (s.max||99)) sel.add(v); else inp.checked = false; }
+        else sel.delete(v);
+      } else sel = v;
+      ultimoToque = v;
+      atualizar();
+      if(multi ? sel.has('__other__') : sel==='__other__'){
+        const oi = document.querySelector('#outrocampo input'); if(oi) oi.focus();
+      }
+    };
+    caixa.appendChild(lab);
+    if(v==='__other__'){
+      const w = el('div','outro-campo'); w.id='outrocampo'; w.style.display='none';
+      const oi = el('input'); oi.type='text'; oi.placeholder='Qual?'; oi.value=outroTxt;
+      oi.oninput = ()=>{ outroTxt = oi.value; travar(); };
+      w.appendChild(oi); caixa.appendChild(w);
+    }
+  });
+  /* Setas navegam entre as opções, inclusive nas de múltipla escolha. */
+  caixa.addEventListener('keydown', e=>{
+    if(e.key!=='ArrowDown' && e.key!=='ArrowUp') return;
+    const campos = [...caixa.querySelectorAll('.opt input:not(:disabled)')];
+    const at = campos.indexOf(document.activeElement);
+    if(at < 0) return;
+    e.preventDefault();
+    campos[(at + (e.key==='ArrowDown'?1:-1) + campos.length) % campos.length].focus();
+  });
+  app.appendChild(caixa);
+  if(contador) app.appendChild(contador);
+
+  if(s.detail){
+    const f = el('label','campo'); f.innerHTML = `<span class="rot">${s.detail}</span>`;
+    detalhe = el('input'); detalhe.type='text'; detalhe.value = r.detail||'';
+    detalhe.placeholder='Ex.: chegar a R$ 100 mil em 7 dias';
+    f.appendChild(detalhe); app.appendChild(f);
+  }
+  const dica = el('p','dica');
+  app.appendChild(dica); app.appendChild(err);
+
+  btn = acoes(rotulo, ()=>{
+    const tem = multi ? sel.size>0 : !!sel;
+    const temOutro = multi ? sel.has('__other__') : sel==='__other__';
+    if(!tem || (temOutro && !outroTxt.trim())) return;
+    const limpo = v => v==='__other__' ? ('Outro: '+outroTxt.trim()) : v;
+    A.respostas[s.id] = multi
+      ? {value:[...sel].map(limpo), raw:[...sel], other:outroTxt}
+      : {value:limpo(sel), raw:sel, other:outroTxt};
+    if(detalhe) A.respostas[s.id].detail = detalhe.value.trim();
+    ir(1);
+  }, true, ultima);
+  atualizar();
+}
+
+function conclusao(){
+  app.classList.add('fim');
+  const selo = el('div','selo');
+  selo.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 12.5l5.2 5.2L20 7"/></svg>';
+  app.appendChild(selo);
+  app.appendChild(el('h1',null,'Jornada concluída'+(primeiroNome()?', '+primeiroNome():'')+'!'));
+  const l = el('div','lead');
+  l.innerHTML = `<p>Muitas vezes estamos tão concentrados no próximo objetivo que esquecemos de reconhecer tudo que já construímos no caminho.</p>
+  <p>Cada lançamento, cada ação de venda, cada decisão, cada aprendizado e até cada pequena vitória faz parte da construção do negócio que você quer ter.</p>
+  <p>Suas respostas vão nos ajudar a tornar a 6D ainda melhor para aquilo que mais importa: ajudar você a continuar avançando.</p>
+  <p><strong>Nos vemos no próximo passo!</strong></p>`;
+  app.appendChild(l);
+  const st = el('p','registro','Registrando suas respostas…');
+  st.id = 'registro';
+  app.appendChild(st);
+  celebracao();
+}
+
+/* Celebração curta e contida: poucas peças, some sozinha, não bloqueia clique. */
+function celebracao(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cores = ['#2F6B4F','#3E8C67','#B8862B','#E3BE7C','#1E2342'];
+  const cv = document.createElement('canvas');
+  cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:80';
+  cv.width = innerWidth; cv.height = innerHeight;
+  document.body.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  const pecas = Array.from({length:70}, ()=>({
+    x: cv.width*(.3+Math.random()*.4), y: cv.height*.36,
+    vx:(Math.random()-.5)*7, vy:-(4+Math.random()*7),
+    l:4+Math.random()*5, a:Math.random()*Math.PI, va:(Math.random()-.5)*.3,
+    cor: cores[(Math.random()*cores.length)|0]
+  }));
+  const t0 = performance.now();
+  (function quadro(t){
+    const dt = t - t0;
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pecas.forEach(p=>{
+      p.vy += .24; p.x += p.vx; p.y += p.vy; p.a += p.va; p.vx *= .995;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
+      ctx.globalAlpha = Math.max(0, 1 - dt/2100);
+      ctx.fillStyle = p.cor; ctx.fillRect(-p.l/2,-p.l/3,p.l,p.l*.6);
+      ctx.restore();
+    });
+    if(dt < 2100) requestAnimationFrame(quadro); else cv.remove();
+  })(t0);
+}
+
+/* ---------------- navegação ---------------- */
+/* Sai para um lado, entra pelo outro: a troca parece um passo adiante,
+   não um recarregamento de página. */
+function ir(d){
+  if(transitando) return;
+  transitando = true;
+  app.classList.add(d>=0 ? 'sai' : 'sai-volta');
+  setTimeout(()=>{
+    transitando = false;
+    dir = d; i += d;
+    if(i < 0) i = 0;
+    const s = norm(SCREENS[i]);
+    if(s.kind==='final' && !lastEntry) submeter();
+    try{ render(); }catch(e){ mostrarFalha(e); }
+    salvarRascunho();
+    window.scrollTo({top:0,behavior:'smooth'});
+    app.focus({preventScroll:true});
+  }, 165);
+}
+
+/* Mesma transição do avanço normal, mas indo direto para uma tela escolhida. */
+function saltarPara(idxTela, direcao){
+  if(transitando) return;
+  transitando = true;
+  app.classList.add(direcao>=0 ? 'sai' : 'sai-volta');
+  setTimeout(()=>{
+    transitando = false;
+    dir = direcao; i = idxTela;
+    try{ render(); }catch(e){ mostrarFalha(e); }
+    salvarRascunho();
+    window.scrollTo({top:0,behavior:'smooth'});
+    app.focus({preventScroll:true});
+  }, 165);
+}
+
+async function submeter(){
+  lastEntry = {
+    nome:A.nome, email:A.email, enviadoEm:new Date().toISOString(),
+    respostas:Object.fromEntries(Object.entries(A.respostas).map(([k,v])=>
+      [k, v.detail!==undefined && v.detail!=='' ? {resposta:v.value, detalhe:v.detail} : v.value]))
+  };
+  savedOk = await enviar(lastEntry);
+  const st = document.getElementById('registro');
+  if(!st) return;
+  if(savedOk){
+    limparRascunho();
+    st.textContent = 'Respostas registradas em nome de ' + A.nome + '.';
+    return;
+  }
+  /* Erro nunca aparece em linguagem técnica: mostra o que fazer. */
+  st.textContent = 'Não conseguimos confirmar o registro das suas respostas.';
+  const n = el('div','acoes centro');
+  const b = el('button','btn btn-linha','Tentar novamente');
+  b.onclick = async ()=>{
+    b.disabled = true; b.textContent = 'Enviando…';
+    savedOk = await enviar(lastEntry);
+    if(savedOk){ limparRascunho(); st.textContent = 'Respostas registradas em nome de '+A.nome+'.'; n.remove(); }
+    else { b.disabled = false; b.textContent = 'Tentar novamente'; }
+  };
+  n.appendChild(b); app.appendChild(n);
+}
+
+/* Enter avança, menos dentro de uma resposta aberta. */
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter' || e.shiftKey) return;
+  if(document.activeElement && document.activeElement.tagName==='TEXTAREA') return;
+  const b = app && app.querySelector('.btn:not(:disabled)');
+  if(b){ e.preventDefault(); b.click(); }
+});
+
+/* ---------------- início ---------------- */
+function iniciar(){
+  app   = document.getElementById('app');
+  barra = document.getElementById('barra');
+  etapa = document.getElementById('etapa');
+  trilha = document.getElementById('trilha');
+  if(!app) return;
+  montarTrilha();
+
+  // Retoma o rascunho apenas se a tela ainda existir nesta versão do formulário.
+  const d = lerRascunho();
+  if(d && d.i > 1){
+    const tela = SCREENS[d.i];
+    if(tela && (typeof tela !== 'string' || Q[tela])){
+      Object.assign(A, d.A||{});
+      progresso(0, '', true);
+      app.innerHTML = '';
+      app.classList.add('entra');
+      retomar();
+      return;
+    }
+    limparRascunho();
+  }
+  try{ render(); }catch(e){ mostrarFalha(e); }
+}
+
+function mostrarFalha(e){
+  console.error(e);
+  if(!app) return;
+  app.innerHTML = '';
+  app.appendChild(el('h2',null,'Não conseguimos abrir esta tela'));
+  app.appendChild(el('p','apoio','Vamos recomeçar a sua jornada do início.'));
+  const n = el('div','acoes');
+  const b = el('button','btn','Começar' + seta);
+  b.onclick = ()=>{ limparRascunho(); i = 0; A.respostas = {}; try{ render(); }catch(err){} };
+  n.appendChild(b); app.appendChild(n);
+}
+
+window.addEventListener('error', ev=>{ if(app && !app.children.length) mostrarFalha(ev.error || new Error(ev.message)); });
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+else iniciar();
+</script>
